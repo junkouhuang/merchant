@@ -1,0 +1,197 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width">
+    <title>个人中心</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.0/lib/index.css">
+	<style type="text/css">
+		* {
+			font-size: 14px;
+		}
+		body {
+			background-color: #f5f5f5;
+		}
+		.top {
+			height: 92vh;
+			overflow: hidden;
+		}
+		.nav{
+			display: flex;
+			justify-content: space-between;
+			height: 8vh;
+			align-items: center;
+			background-color: #fff;
+			
+		}
+		.nav img {
+			width: 20px;
+			height: 20px;
+		}
+		.nav span {
+			font-size: 12px;
+			margin-top: 2px;
+			color: #666;
+		}
+		.nav .active {
+			color: #3369F4;
+		}
+		.nav a {
+			display: block;
+			text-align: center;
+			flex: 1;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: #333;
+			flex-direction: column;
+		}
+		.user_content {
+			display: flex;
+			background-color: #fff;
+			padding: 20px;
+		}
+		.piture {
+			width: 80px;
+			height: 80px;
+			background: url(./img/topic.png);
+			background-size: cover;
+		    border-radius: 50%;
+	        margin-right: 8px;
+		}
+		.name {
+			margin-bottom: 4px;
+		}
+		.level,
+		.no,
+		.code {
+			color: #999;
+		}
+		.row {
+			align-content: center;
+			padding-top: 20px;
+			background-color: #fff;
+		    margin-top: 10px;
+	        padding: 10px;
+		}
+		.row .col {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+			position: relative;
+			padding: 12px 16px;
+			color: #333;
+		}
+		.row .col:first-child::after {
+		    position: absolute;
+		    box-sizing: border-box;
+		    content: ' ';
+		    pointer-events: none;
+		    right: 16px;
+		    bottom: 0;
+		    left: 16px;
+		    border-bottom: 1px solid #ebedf0;
+		    -webkit-transform: scaleY(0.5);
+		    transform: scaleY(0.5);
+		}
+		.row .col .right {
+		    width: 20px;
+			position: relative;
+		}
+		.business,
+		.setting {
+			width: 32px;
+			height: 32px;
+		}
+		[v-cloak]{
+		    display: none;
+		}
+	</style>
+</head>
+<body>
+    <div id="app"  v-cloak>
+    	<div class="top">
+		  	<div class="user_content">
+		  		<div class="piture"></div>
+		  		<div>
+		  			<div class="name" v-cloak="">{{userName}}</div>
+		  			<div class="level">{{userGrade == 0?'普通会员':userGrade == 1?'白金会员':userGrade == 2?'钻石会员':'其他'}}</div>
+		  			<div class="no">用户编号：{{userId}}</div>
+		  			<div class="code">邀请码：{{invitationCode}}</div>
+		  		</div>
+		  	</div>
+		  	<div class="row" justify="center"> 
+			    <a class="col" href="business.html">
+		  			<span>商户信息</span>
+		  			<img src="./img/right.png"  class="right"/>
+			    </a>
+			    <a class="col">
+		  			<span>设置</span>
+		  			<img src="./img/right.png"  class="right"/>
+			    </a>
+			</div>
+		</div>
+		<div class="nav">
+			<a class="left" href="./transaction.html">
+				<img src="./img/transaction.png" />
+				<span>交易</span>
+			</a>
+			<a class="center"  href="./transaction_record.html">
+				<img src="./img/record.png" />
+				<span>交易记录</span>
+			</a>
+			<a class="right" href="./user.html">
+				<img src="./img/user_active.png" />
+				<span class="active">我的</span>
+			</a>
+		</div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@2.0/lib/vant.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.bootcss.com/qs/6.5.2/qs.min.js"></script>
+<script>
+    new Vue({
+      el: '#app',
+      data:{
+      	userGrade:'',
+      	userName:'',
+      	userId:'',
+      	invitationCode:'',
+      	userId:''
+      },
+      mounted(){
+      	this.userId = localStorage.getItem("userId");
+      	this.getRequest();
+      },
+      methods:{
+      	getRequest(){
+      		let result = axios({
+		        method: 'get',
+		        url: 'http://17665320002.qicp.vip/user/info?userId='+this.userId,
+		        headers:{
+				  "Accept": "*/*"
+		        },
+		  	}).then(res=> {
+		  		console.log(res.data)
+		    	if(res.data.code == 'success') {
+		    		this.userGrade = res.data.data.userGrade;
+		    		this.userName = res.data.data.userName;
+		    		this.userId = res.data.data.userId;
+		    		this.invitationCode = res.data.data.invitationCode;
+		    	}else{
+		    		vant.Toast(res.data.message);
+		    		return;
+		    	}
+		        return resp.data;
+		        vant.Toast.clear();
+		    }).catch(error=>{
+		        return "exception="+error;
+		    });
+      	}
+      }
+    });
+</script>
+</html>

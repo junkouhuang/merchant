@@ -1,0 +1,376 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width">
+  <title>交易</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.0/lib/index.css">
+  <style type="text/css">
+    * {
+      font-size: 14px;
+    }
+
+    body {
+      background-color: #f5f5f5;
+    }
+
+    .top {
+      height: 92vh;
+      overflow: hidden;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      height: 8vh;
+      align-items: center;
+      background-color: #fff;
+    }
+
+    .nav a {
+      display: block;
+      text-align: center;
+      flex: 1;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+      flex-direction: column;
+    }
+
+    .nav img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .nav span {
+      font-size: 12px;
+      margin-top: 2px;
+      color: #666;
+    }
+
+    .nav .active {
+      color: #3369F4;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #fff;
+      position: relative;
+      padding: 12px 16px;
+    }
+
+    .item input {
+      text-align: right;
+      border: none;
+      color: #666;
+    }
+
+    .item1 {
+      padding: 0 16px;
+    }
+
+    .child {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .item::after {
+      position: absolute;
+      box-sizing: border-box;
+      content: ' ';
+      pointer-events: none;
+      right: 16px;
+      bottom: 0;
+      left: 16px;
+      border-bottom: 1px solid #ebedf0;
+      -webkit-transform: scaleY(0.5);
+      transform: scaleY(0.5);
+    }
+
+    .star {
+      color: #ee0a24;
+    }
+
+    .transaction {
+      margin-bottom: 20px;
+      width: 80%;
+      margin-left: 10%;
+      height: 44px;
+      line-height: 44px;
+      background: linear-gradient(-270deg, #0B99FE, #3369F4);
+      border-radius: 13px;
+      color: #fff;
+      font-size: 16px;
+      border: none;
+      position: relative;
+      top: 28px;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="item item1">
+      <div class="child">
+        <span class="star">*</span>
+        <span>结算卡：</span>
+      </div>
+      <van-dropdown-menu>
+        <van-dropdown-item :value="bankName" :options="bankList" @change="dropdown"/>
+      </van-dropdown-menu>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>银行卡号（信用卡）</span>
+      </div>
+      <input v-model="bankAccount" placeholder="请填写银行卡号" type="number"></input>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>持卡人姓名</span>
+      </div>
+      <input v-model="bankAccountName" placeholder="请填写持卡人姓名" maxlength="10"></input>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>身份证号码</span>
+      </div>
+      <input v-model="bankIdCardNo" placeholder="请填写身份证号码"></input>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>预留手机号码</span>
+      </div>
+      <input v-model="bankPhone" placeholder="请填写手机号码"></input>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>cvs</span>
+      </div>
+      <input v-model="cvn" placeholder="请填写信用卡背面后三位" maxlength="3"></input>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>有效期</span>
+      </div>
+      <input placeholder="请选择有效期" readonly="readonly" @click="showPopup" v-model="expire"/>
+      <van-popup
+        v-model="show"
+        position="bottom"
+        :style="{ height: '40%' }"
+      >
+        <van-datetime-picker
+          type="year-month"
+          :min-date="minDate"
+          @change="change"
+          @cancel="onCancel"
+          @confirm="onConfirm"
+        />
+      </van-popup>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>交易金额</span>
+      </div>
+      <input v-model="orderAmt" placeholder="请填写交易金额"></input>
+    </div>
+    <button class="transaction" @click="transaction">交易</button>
+  </div>
+  <div class="nav">
+    <a class="left" href="./transaction.html">
+      <img src="./img/transaction_active.png"/>
+      <span class="active">交易</span>
+    </a>
+    <a class="center" href="./transaction_record.html">
+      <img src="./img/record.png"/>
+      <span>交易记录</span>
+    </a>
+    <a class="right" href="./user.html">
+      <img src="./img/user.png"/>
+      <span>我的</span>
+    </a>
+  </div>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@2.0/lib/vant.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.bootcss.com/qs/6.5.2/qs.min.js"></script>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      bankAccount: "",
+      bankAccountName: "",
+      bankIdCardNo: "",
+      bankPhone: "",
+      cvn: "",
+      expire: '',
+      date: '',
+      merchantNo: "",
+      orderAmt: "",
+      userId: "",
+      value: '',
+      show: false,
+      currentDate: new Date(new Date().getFullYear(), new Date().getMonth()),
+      minDate: new Date(new Date().getFullYear(), new Date().getMonth()),
+      bankList: [],
+      bankName: ''
+    },
+    mounted() {
+      this.userId = localStorage.getItem('userId');
+      this.merchantNo = localStorage.getItem('merchantNo');
+      this.date = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) ;
+      this.getRequest();
+    },
+    methods: {
+	  //选择结算卡
+      dropdown(e) {
+        this.bankName = e;
+      },
+      //获取数据
+      getRequest() {
+        vant.Toast.loading({
+          message: '加载中...',
+          duration: 0
+        });
+        var params = {userId: this.userId}
+        let result = axios({
+          method: 'post',
+          url: 'http://17665320002.qicp.vip/merchant/findMerchantInfoList',
+          headers: {
+            "Accept": "*/*"
+          },
+          data: Qs.stringify(params)
+        }).then(res => {
+          if (res.data.code == 'success') {
+            res.data.data.forEach((item, index) => {
+              if (index == 0) {
+                this.bankName = item.bankName;//默认选中第一个
+              }
+              item.text = item.bankName;
+              item.value = item.bankName;
+            })
+            this.bankList = res.data.data;
+          } else {
+            vant.Toast(res.data.message);
+          }
+          vant.Toast.clear();
+        }).catch(error => {
+          return "exception=" + error;
+        });
+      },
+      showPopup() {
+        this.show = true;
+      },
+      onCancel() {
+        this.show = false;
+      },
+      onConfirm() {
+        this.show = false;
+        this.expire = this.date
+      },
+      change(event) {
+        this.date = event.getValues()[0] + '-' + event.getValues()[1] 
+      },
+      transaction() {
+        if (this.bankAccount == '') {
+          vant.Toast('请填写银行卡号');
+          return;
+        }
+        var bankAccount_Flag = /^(\d{10,30})$/.test(this.bankAccount);
+        if (!bankAccount_Flag) {
+          vant.Toast('请填写正确银行卡号');
+          return;
+        }
+        if (this.bankAccountName == '') {
+          vant.Toast('请填写持卡人姓名');
+          return;
+        }
+        if (this.bankIdCardNo == '') {
+          vant.Toast('请填写身份证号码');
+          return;
+        }
+        var bankIdCardNo_Flag = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(this.bankIdCardNo);
+        if (!bankIdCardNo_Flag) {
+          vant.Toast('身份证格式不正确');
+          return;
+        }
+        if (this.bankPhone == '') {
+          vant.Toast('请填写预留手机号码');
+          return;
+        }
+        var bankPhone_Flag = /^(13[0-9]|14[5-9]|15[012356789]|166|17[0-8]|18[0-9]|19[8-9])[0-9]{8}$/.test(this.bankPhone);
+        if (!bankPhone_Flag) {
+          vant.Toast('手机号码格式不正确');
+          return;
+        }
+        if (this.cvn == '') {
+          vant.Toast('请填写信用卡背面后三位');
+          return;
+        }
+        if (this.cvn.length < 3) {
+          vant.Toast('必须为信用卡背面后三位数字');
+          return;
+        }
+        if (this.expire == '') {
+          vant.Toast('请选择有效期');
+          return;
+        }
+        if (this.orderAmt == '') {
+          vant.Toast('请填写交易金额');
+          return;
+        }
+        vant.Toast.loading({
+          message: '交易中...',
+          duration: 0,
+          forbidClick: true,
+        });
+        var expire_format = this.expire.split("-")[1]+'/'+this.expire.split("-")[0].slice(-2)
+        var params = {
+          bankAccount: this.bankAccount,
+          bankAccountName: this.bankAccountName,
+          bankIdCardNo: this.bankIdCardNo,
+          bankPhone: this.bankPhone,
+          cvn: this.cvn,
+          expire: expire_format,
+          merchantNo: this.merchantNo,
+          orderAmt: this.orderAmt,
+          userId: this.userId,
+        }
+        var result = axios({
+          method: 'post',
+          url: 'http://17665320002.qicp.vip/ykTxPay/ykTxPayment',
+          headers: {
+            "Accept": "*/*"
+          },
+          data: params
+        }).then(res => {
+          if (res.data.code == 'success') {
+            localStorage.setItem("merchantNo", res.data.data.merchantNo);
+            localStorage.setItem("userId", res.data.data.userId);
+            this.check(res.data.data.userId);
+          } else {
+            vant.Toast(res.data.message);
+          }
+
+        }).catch(error => {
+          return "exception=" + error;
+        });
+      }
+    }
+  });
+</script>
+</html>

@@ -1,0 +1,125 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width">
+    <title>选择银联号</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.0/lib/index.css">
+	<style type="text/css">
+		* {
+			font-size: 14px;
+		}
+		body {
+			background-color: #f5f5f5;
+			padding-top: 8vh;
+		}
+		.subheading {
+		    padding: 0 16px;
+		}
+		.go {
+            display: flex;
+            justify-content: space-between;
+            height: 8vh;
+            align-items: center;
+            background-color: #fff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;;
+        }
+        .go img {
+            display: block;
+            text-align: center;
+            height: 30px;
+            width: 30px;
+        }
+        
+        .go .title {
+        	text-align: center;
+    	    width: 100%;
+        }
+		.item {
+			background-color: #fff;
+		    padding: 12px 16px;
+		    position: relative;
+		}
+		.item::after {
+		    position: absolute;
+		    box-sizing: border-box;
+		    content: ' ';
+		    pointer-events: none;
+		    right: 16px;
+		    bottom: 0;
+		    left: 16px;
+		    border-bottom: 1px solid #ebedf0;
+		    -webkit-transform: scaleY(0.5);
+		    transform: scaleY(0.5);
+		}
+		[v-cloak]{
+		    display: none;
+		}
+	</style>
+</head>
+<body>
+    <div id="app">
+    	<div class="go" @click="back">
+	        <img src="./img/left.png"/>
+	        <p class="title">选择银联号</p>
+	    </div>
+    	<div>
+    		<van-search v-model="dotName" placeholder="请输入银行名称/开户行名称进行搜索" @search="onSearch"/>
+    	</div>
+	  	<p class="subheading">银行列表</p>
+  		<div class="item" v-for="(item,index) in list" @click="sel(item)" v-cloak >{{item.dotName}}</div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@2.0/lib/vant.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.bootcss.com/qs/6.5.2/qs.min.js"></script>
+<script>
+    new Vue({
+      el: '#app',
+      data:{
+      	dotName:'',
+  	    list: [],
+  	    business:[]
+      },
+      mounted(){
+      	this.business = Qs.parse(localStorage.getItem('business'));
+      },
+      methods:{
+      	back(){
+				window.history.go(-1);
+        	},
+        	sel(obj){
+        		this.business.cnaps = obj.cnaps;
+        		localStorage.setItem('business',Qs.stringify(this.business));
+        		window.history.go(-1);
+        	},
+      	onSearch(){
+      		vant.Toast.loading({
+					message: '搜索中...',
+					duration: 0,
+			});
+      		let result = axios({
+		        method: 'get',
+		        url: 'http://17665320002.qicp.vip/bank/basic/number?dotName='+this.dotName,
+		        headers:{
+				  "Accept": "*/*"
+		        },
+		  	}).then(res=> {
+		    	if(res.data.code == 'success') {
+		    		this.list = res.data.data;
+		    	}else{
+		    		vant.Toast(res.data.message);
+		    		return;
+		    	}
+		        vant.Toast.clear();
+		    }).catch(error=>{
+		        return "exception="+error;
+		    });
+      	}
+      }
+    });
+</script>
+</html>

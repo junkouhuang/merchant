@@ -1,0 +1,428 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width">
+  <title>修改商户</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.0/lib/index.css">
+  <style type="text/css">
+    * {
+      font-size: 14px;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      padding-top: 8vh;
+    }
+
+    .top {
+      height: 92vh;
+      overflow: hidden;
+    }
+
+    .go {
+      display: flex;
+      justify-content: space-between;
+      height: 8vh;
+      align-items: center;
+      background-color: #f7f7f7;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;;
+    }
+
+    .go img {
+      display: block;
+      text-align: center;
+      height: 30px;
+      width: 30px;
+    }
+
+    .go .title {
+      text-align: center;
+      width: 100%;
+    }
+
+    .item {
+      background-color: #fff;
+      padding: 12px 16px;
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .child {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .item::after {
+      position: absolute;
+      box-sizing: border-box;
+      content: ' ';
+      pointer-events: none;
+      right: 16px;
+      bottom: 0;
+      left: 16px;
+      border-bottom: 1px solid #ebedf0;
+      -webkit-transform: scaleY(0.5);
+      transform: scaleY(0.5);
+    }
+
+    .star {
+      color: #ee0a24;
+    }
+
+    .item input {
+      border: none;
+      text-align: right;
+      flex: 1;
+      color: #666;
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+    }
+
+    .right {
+      width: 20px;
+    }
+
+    .front,
+    .back {
+      width: 140px;
+    }
+
+    .front img,
+    .back img {
+      width: 140px;
+    }
+
+    .dn {
+      display: none;
+    }
+    
+    .bankList {
+      display: flex;
+      align-items: center;
+    }
+
+    .band {
+      margin-bottom: 20px;
+      width: 80%;
+      margin-left: 10%;
+      height: 44px;
+      line-height: 44px;
+      background: linear-gradient(-270deg, #0B99FE, #3369F4);
+      border-radius: 13px;
+      color: #fff;
+      font-size: 16px;
+      border: none;
+      position: relative;
+      top: 28px;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="go" @click="back">
+    <img src="./img/left.png"/>
+    <p class="title">修改商户</p>
+  </div>
+  <div class="top">
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>姓名：</span>
+      </div>
+      <input placeholder="请填写法人姓名" v-model="bankAccountName"/>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>身份证号码：</span>
+      </div>
+      <input placeholder="请填写法人身份证" v-model="idCardNumber" maxlength="25"/>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>卡号：</span>
+      </div>
+      <input placeholder="请填写卡号" v-model="bankAccount"/>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>银联号：</span>
+      </div>
+      <span @click="bankList" class="bankList"> 
+        <input placeholder="请选择银联号" readonly="readonly" v-model="cnaps"/>
+        <img src="./img/right.png" class="right"/>
+      </span>
+    </div>
+    <div class="item">
+      <div class="child">
+        <span class="star">*</span>
+        <span>预留手机号码：</span>
+      </div>
+      <input placeholder="请输入手机号码" v-model="reservePhone" maxlength="11"/>
+    </div>
+    <div class="item">
+      <div class="front">
+        <label for="front">
+          　　<img :src="idCardFront"/>
+        </label>
+        <input type="file" id="front" class="dn" @change="frontFun" accept="image/*"/>
+      </div>
+      <div class="back">
+        <label for="back">
+          　　<img :src="idCardBack"/>
+        </label>
+        <input type="file" id="back" class="dn" @change="backFun" accept="image/*"/>
+      </div>
+    </div>
+    <button class="band" @click="save">保存</button>
+  </div>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@2.0/lib/vant.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.bootcss.com/qs/6.5.2/qs.min.js"></script>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      bankAccountName: "",
+      idCardNumber: "",
+      bankAccount: '',
+      cnaps: '',
+      merchantNo: '',
+      reservePhone: "",
+      idCardFront: './img/front.png',
+      idCardBack: './img/back.png',
+      userId: '',
+    },
+    watch: {},
+    mounted() {
+	  var has = localStorage.getItem('business');
+      if (has !=null) {
+      	has =Qs.parse(has);
+        this.bankAccountName = has.bankAccountName;
+        this.idCardNumber = has.idCardNumber;
+        this.bankAccount = has.bankAccount;
+        this.cnaps = has.cnaps || this.cnaps;
+        this.merchantNo = has.merchantNo;
+        this.reservePhone = has.reservePhone;
+        this.idCardFront = has.idCardFront || this.idCardFront;
+        this.idCardBack = has.idCardBack || this.idCardBack;
+        this.userId = has.userId || this.userId;
+      }else{
+        this.userId = localStorage.getItem('userId');
+        this.merchantNo = location.search.split('merchantNo=')[1];
+        this.getRequest();
+      }
+
+    },
+    methods: {
+      back() {
+      	localStorage.removeItem('business');
+        window.history.go(-1);
+      },
+      getRequest() {
+        var params = {
+          userId: this.userId,
+          merchantNo: this.merchantNo
+        }
+        let result = axios({
+          method: 'post',
+          url: 'http://17665320002.qicp.vip/merchant/findMerchantInfo',
+          data: Qs.stringify(params),
+          headers: {
+            "Accept": "*/*"
+          },
+        }).then(res => {
+          if (res.data.code == 'success') {
+           	  this.bankAccountName=res.data.data.bankAccountName;
+		      this.idCardNumber=res.data.data.idCardNumber;
+		      this.bankAccount=res.data.data.bankCard;
+		      this.cnaps=res.data.data.cnaps;
+		      this.merchantNo=res.data.data.merchantNo;
+		      this.reservePhone=res.data.data.reservePhone;
+		      this.idCardFront=res.data.data.idCardFront;
+		      this.idCardBack=res.data.data.idCardBack;
+		      this.userId=res.data.data.userId;
+          } else {
+            vant.Toast(res.data.message);
+            return;
+          }
+          return resp.data;
+          vant.Toast.clear();
+        }).catch(error => {
+          return "exception=" + error;
+        });
+      },
+      
+      //选择银联号
+      bankList() {
+        let params = {
+          bankAccountName: this.bankAccountName,
+          idCardNumber: this.idCardNumber,
+          bankAccount: this.bankAccount,
+          cnaps: this.cnaps,
+          merchantNo: this.merchantNo,
+          reservePhone: this.reservePhone,
+          idCardFront: this.idCardFront,
+          idCardBack: this.idCardBack,
+          userId: this.userId
+        }
+        localStorage.setItem('business', Qs.stringify(params));
+        window.location.href = './bank_list.html'
+      },
+
+      //上传身份证正面照
+      frontFun(event) {
+        vant.Toast.loading({
+          message: '正在上传...',
+          duration: 0,
+          forbidClick: true,
+        });
+        var files = event.target.files[0]        //获取文件         
+        let formData = new FormData();
+        formData.append('file', files);
+        var fileName = this.userId + '_' + this.idCardNumber + '_front'
+        let result = axios({
+          method: 'post',
+          url: 'http://17665320002.qicp.vip/oss/file/file?fileName=' + fileName,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            "Accept": "*/*",
+          },
+          data: formData
+        }).then(res => {
+          if (res.data.code == 'success') {
+            this.idCardFront = res.data.data;
+          } else {
+            vant.Toast(res.data.message);
+            return;
+          }
+          vant.Toast.clear();
+        }).catch(error => {
+          return "exception=" + error;
+        });
+      },
+      //上传身份证背面照
+      backFun(event) {
+        vant.Toast.loading({
+          message: '正在上传...',
+          duration: 0,
+          forbidClick: true,
+        });
+        var files = event.target.files[0]        //获取文件         
+        let formData = new FormData();
+        formData.append('file', files);
+        var fileName = this.userId + '_' + this.idCardNumber + '_back'
+        let result = axios({
+          method: 'post',
+          url: 'http://17665320002.qicp.vip/oss/file/file?fileName=' + fileName,
+          headers: {
+            "Accept": "*/*"
+          },
+          data: formData
+        }).then(res => {
+          if (res.data.code == 'success') {
+            this.idCardBack = res.data.data;
+          } else {
+            vant.Toast(res.data.message);
+            return;
+          }
+          vant.Toast.clear();
+        }).catch(error => {
+          return "exception=" + error;
+        });
+      },
+      save() {
+        if (this.bankAccountName == '') {
+          vant.Toast('请填写法人姓名');
+          return;
+        }
+        if (this.idCardNumber == '') {
+          vant.Toast('请填写法人身份证');
+          return;
+        }
+        var idCardNumber_Flag = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(this.idCardNumber);
+        if (!idCardNumber_Flag) {
+          vant.Toast('法人身份证格式不正确');
+          return;
+        }
+        if (this.bankAccount == '') {
+          vant.Toast('请填写卡号');
+          return;
+        }
+        if (this.phone == '') {
+          vant.Toast('请选择银联号');
+          return;
+        }
+        if (this.reservePhone == '') {
+          vant.Toast('请输入手机号码');
+          return;
+        }
+        var phone_Flag = /^((13[0-9])|(14[5|7|9])|(15([0-3]|[5-9]))|(16([6]))|(17([1-3]|5|6|7|8]))|(18([0-9]))|(19([8-9])))\d{8}$/.test(this.reservePhone);
+        if (!phone_Flag) {
+          vant.Toast('手机号码格式不正确');
+          return;
+        }
+        if (this.idCardFront == '') {
+          vant.Toast('请上传身份证正面照');
+          return;
+        }
+        if (this.idCardBack == '') {
+          vant.Toast('请上传身份证背面照');
+          return;
+        }
+        vant.Toast.loading({
+          message: '保存中...',
+          duration: 0,
+          forbidClick: true,
+        });
+        let params = {
+          bankAccountName: this.bankAccountName,
+          idCardNumber: this.idCardNumber,
+          bankAccount: this.bankAccount,
+          cnaps: this.cnaps,
+          merchantNo: this.merchantNo,
+          reservePhone: this.reservePhone,
+          idCardFront: this.idCardFront,
+          idCardBack: this.idCardBack,
+          userId: this.userId
+        }
+        let result = axios({
+          method: 'post',
+          url: 'http://17665320002.qicp.vip/merchant/merchantChange',
+          headers: {
+            "Accept": "*/*"
+          },
+          data: params
+        }).then(res => {
+          if (res.data) {
+          	localStorage.removeItem('business');
+            window.history.go(-1);
+          } else {
+            vant.Toast("修改失败");
+            return;
+          }
+          return resp.data;
+          vant.Toast.clear();
+        }).catch(error => {
+          return "exception=" + error;
+        });
+      }
+    }
+  });
+</script>
+</html>

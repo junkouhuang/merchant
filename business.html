@@ -1,0 +1,216 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width">
+  <title>商户管理</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.0/lib/index.css">
+  <style type="text/css">
+    * {
+      font-size: 14px;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      padding-top: 8vh;
+    }
+
+    .top {
+      height: 92vh;
+      overflow: auto;
+    }
+
+    .go {
+      display: flex;
+      justify-content: space-between;
+      height: 8vh;
+      align-items: center;
+      background-color: #fff;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;;
+    }
+
+    .go img {
+      display: block;
+      text-align: center;
+      height: 30px;
+      width: 30px;
+    }
+
+    .go .title {
+      text-align: center;
+      width: 100%;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      height: 8vh;
+      align-items: center;
+      background-color: #fff;
+    }
+
+    .nav a {
+      display: block;
+      text-align: center;
+      flex: 1;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+
+    .car_list {
+      margin: 20px;
+      overflow: hidden;
+      background-color: #fff;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+      opacity: 1;
+      border-radius: 19px;
+      display: flex;
+      flex-direction: column;
+      align-content: space-between;
+      background: url(img/bank-bg.png) no-repeat;
+      background-position: 50% 50%;
+      /*这个是按从左往右，从上往下的百分比位置进行调整*/
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+
+      /*还有repeat-x,y等*/
+    }
+
+    .name {
+      padding: 24px 24px 0 24px;
+      color: #fff;
+      font-size: 17px;
+    }
+
+    .no {
+      padding: 24px;
+      color: #fff;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+    }
+
+    .change {
+      display: flex;
+      padding: 9px 24px;
+      color: #fff;
+      font-size: 14px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .change img {
+      width: 20px;
+    }
+
+    .add {
+      margin-bottom: 20px;
+      width: 80%;
+      margin-left: 10%;
+      height: 44px;
+      line-height: 44px;
+      text-align: center;
+      background-color: #fff;
+      font-size: 16px;
+      border: none;
+      position: relative;
+      top: 28px;
+      display: block;
+      color: #333;
+    }
+
+    .li {
+      width: 9px;
+      height: 9px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      opacity: 1;
+      margin-right: 7px;
+    }
+
+    .li-mr {
+      margin-right: 17px;
+    }
+
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div id="app" v-cloak>
+  <div class="go" @click="back">
+    <img src="./img/left.png"/>
+    <p class="title">商户管理</p>
+  </div>
+  <div class="top">
+    <div class="car_list" v-for="(item,index) in list" :key="index">
+      <div class="name">{{item.bankName}}</div>
+      <div class="no">
+        <div class="li" :class=" index==3 || index==7 || index==11 ? 'li-mr' :'' " v-for="(item,index) in 12"
+             :key="index"></div>
+        <div>{{item.bankCard}}</div>
+      </div>
+      <div class="change" @click="change(item)"><span>更换商户信息</span><img src="img/right_white.png"/></div>
+    </div>
+    <a href="business_add.html" class="add">添加</a>
+  </div>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@2.0/lib/vant.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.bootcss.com/qs/6.5.2/qs.min.js"></script>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      userId: '',
+      list: []
+    },
+    mounted() {
+      this.userId = localStorage.getItem('userId')
+      this.getRequest();
+    },
+    methods: {
+      back() {
+        window.history.go(-1);
+      },
+      change(item) {
+        window.location.href = './business_update.html?merchantNo=' + item.merchantNo
+      },
+      getRequest() {
+        vant.Toast.loading({
+          message: '加载中...',
+          duration: 0,
+          forbidClick: true,
+        });
+        var params = {userId: this.userId}
+        let result = axios({
+          method: 'post',
+          url: 'http://17665320002.qicp.vip/merchant/findMerchantInfoList',
+          headers: {
+            "Accept": "*/*"
+          },
+          data: Qs.stringify(params)
+        }).then(res => {
+          vant.Toast.clear();
+          if (res.data.code == 'success') {
+            this.list = res.data.data
+          } else {
+            vant.Toast(res.data.message);
+          }
+        }).catch(error => {
+          return "exception=" + error;
+        });
+      }
+    }
+  });
+</script>
+</html>
